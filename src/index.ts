@@ -32,24 +32,47 @@ async function main() {
     },
   });
 
-  const users = await prisma.user.findMany({
-    include: {
-      posts: true,
+  const allUsers = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
     },
   });
 
-  console.log(users);
+  console.log("All the users in MongoDB:", allUsers);
 
-  const user = await prisma.user.findUnique({
+  const userWithPosts = await prisma.user.findUnique({
     where: {
       email: "y@gmail.com",
     },
-    include: {
-      posts: true,
+    select: {
+      name: true,
+      email: true,
+      posts: {
+        select: {
+          title: true,
+          content: true,
+        },
+      },
     },
   });
 
-  console.log(user);
+  console.log("Specific user with his posts:", userWithPosts);
+
+  const postsByUser = await prisma.post.findMany({
+    where: {
+      author: {
+        email: "y@gmail.com",
+      },
+    },
+    select: {
+      title: true,
+      content: true,
+    },
+  });
+
+  console.log("Find posts by user email:", postsByUser);
 }
 
 main();
